@@ -3,10 +3,15 @@
 //
 
 #include <fstream>
+#include <iostream>
 
 #include "Config.h"
 
+#ifdef _WIN32
+#define CONFIG_PATH "./config/"
+#else
 #define CONFIG_PATH "/etc/WechatJumpHelper/"
+#endif
 
 using namespace std;
 
