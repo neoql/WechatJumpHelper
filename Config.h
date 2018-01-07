@@ -10,6 +10,7 @@
 class Config {
 public:
     explicit Config(const char *path);
+    Config(const int &height, const int &width);
     ~Config();
     const Json::Value& operator[](const char *key) const;
 

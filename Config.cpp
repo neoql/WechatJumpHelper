@@ -6,6 +6,8 @@
 
 #include "Config.h"
 
+#define CONFIG_PATH "/etc/WechatJumpHelper/"
+
 using namespace std;
 
 Config::Config(const char *path) {
@@ -17,11 +19,18 @@ Config::Config(const char *path) {
     Json::parseFromStream(builder, ifs, this->root, nullptr);
 }
 
-const Json::Value &Config::operator[](const char *key) const {
+Config::Config(const int &height, const int &width) {
+    char path[128];
 
-    return this->root->operator[](key);
+    sprintf(path, "%s%dx%d/config.json", CONFIG_PATH, height, width);
+    new (this)Config(path);
 }
 
 Config::~Config() {
     delete this->root;
+}
+
+const Json::Value &Config::operator[](const char *key) const {
+
+    return this->root->operator[](key);
 }

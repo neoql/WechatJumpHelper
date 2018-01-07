@@ -12,3 +12,6 @@ link_libraries(${JSONCPP_LIBRARIES})
 add_executable(JumpHelper JumpHelper.cpp Config.cpp Config.h)
 target_link_libraries(JumpHelper ${OpenCV_LIBS})
 target_link_libraries(JumpHelper ${JSONCPP_LIBRARIES})
+
+install(TARGETS JumpHelper RUNTIME DESTINATION bin)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/config/ DESTINATION /etc/WechatJumpHelper)

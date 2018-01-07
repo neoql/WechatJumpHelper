@@ -3,10 +3,13 @@
 #include <iostream>
 #include <unistd.h>
 #include <random>
+#include <regex>
 
 #include <opencv2/opencv.hpp>
 
 #include "Config.h"
+
+#define VERSION "1.0"
 
 using namespace std;
 using namespace cv;
@@ -37,8 +40,36 @@ Mat screenshot() {
     return ret;
 }
 
+void split(char *str, const char *sep, string array[]) {
+    int i = 0;
+    const char *p;
+
+    p = strtok(str, sep);
+    while (p) {
+        array[i++] = string(p);
+        p = strtok(nullptr, sep);
+    }
+}
+
 void loadConfig() {
-    Config cfg("/home/neoql/repo/wechat_jump_game/config/1920x1080/config.json");
+    FILE *p;
+    char buf[64] = {0};
+
+    p = popen("adb shell wm size", "r");
+    fread(buf, 1, 128, p);
+
+    cout << buf << endl;
+
+    pclose(p);
+    buf[strlen(buf) - 1] = 0;
+
+    string args[2];
+
+    split(buf + 15, "x", args);
+
+    int height = stoi(args[1]);
+    int width  = stoi(args[0]);
+    Config cfg(height, width);
 
     piece_base_height_1_2   = cfg["piece_base_height_1_2"].asInt();
     piece_body_width        = cfg["piece_body_width"].asInt();
@@ -51,7 +82,7 @@ int randInt(const int &a, const int &b) {
     return (rd() % (b - a) + a);
 }
 
-void buttonPostion(const Mat &img, int* const x, int * const y) {
+void buttonPosition(const Mat &img, int *const x, int *const y) {
     int width  = img.cols;
     int height = img.rows;
 
@@ -101,8 +132,6 @@ void findPieceAndBoard(const Mat &img,
 
         if (scan_start_y) break;
     }
-
-    cout << "scan_start_y:" << scan_start_y << endl;
 
     for (int i = scan_start_y; i < height * 2 / 3; i++) {
         for (int j = scan_x_border; j < width - scan_x_border; j++) {
@@ -195,15 +224,70 @@ void findPieceAndBoard(const Mat &img,
     }
 }
 
-int main(int argc, char *argv[]) {
+bool ask(const string &prompt,
+         const string &_true_value = "y",
+         const string &_false_value = "n",
+         bool _default = true) {
+    string s;
+    string _default_value = _default ? _true_value : _false_value;
+    printf("%s %s/%s [%s]: ",
+           prompt.c_str(),
+           _true_value.c_str(),
+           _false_value.c_str(),
+           _default_value.c_str());
 
+    cin >> noskipws >> s;
+    getchar();
+    if (s.empty()) {
+        return false;
+    }
+
+    for (;;) {
+        if (s == _true_value) {
+            return true;
+        } else if (s == _false_value) {
+            return false;
+        } else {
+            printf("%s %s/%s [%s]: ",
+                   prompt.c_str(),
+                   _true_value.c_str(),
+                   _false_value.c_str(),
+                   _default_value.c_str());
+            cin >> noskipws >> s;
+            getchar();
+            if (s.empty()) {
+                return false;
+            }
+        }
+    }
+}
+
+void showInfo() {
+    cout << "Version: " << VERSION << endl;
+    cout << "开源地址: https://github.com/neoql/WecharJumpHelper" << endl;
+    cout << "原项目地址： https://github.com/wangshub/wechat_jump_game" << endl;
+    cout << "算法作者: wangshub" << endl;
+    cout << "本程序作者: @author月梦书" << endl;
+}
+
+int main(int argc, char *argv[]) {
+    showInfo();
+
+    bool flag = ask("请确保手机打开了 ADB 并连接了电脑，然后打开跳一跳并【开始游戏】后再用本程序，确定开始？");
+
+    if (!flag) {
+        cout << "bye." << endl;
+        return 0;
+    }
+
+    cout << "Ctrl-c退出程序." << endl;
     loadConfig();
     for (;;) {
         Mat img = screenshot();
         int px, py, bx, by;
         int x, y;
         findPieceAndBoard(img, &px, &py, &bx, &by);
-        buttonPostion(img, &x, &y);
+        buttonPosition(img, &x, &y);
         jump(sqrt((bx - px) * (bx - px) + (by - py) * (by - py)), x, y);
         sleep(1);
     }
