@@ -269,24 +269,24 @@ bool ask(const string &prompt,
 }
 
 void showInfo() {
-    cout << "Version: " << VERSION << endl;
-    cout << "开源地址: https://github.com/neoql/WecharJumpHelper" << endl;
-    cout << "原项目地址： https://github.com/wangshub/wechat_jump_game" << endl;
-    cout << "算法作者: wangshub" << endl;
-    cout << "本程序作者: @author月梦书" << endl;
+	cout << "Version: " << VERSION << endl;
+	cout << "开源地址: https://github.com/neoql/WechatJumpHelper" << endl;
+	cout << "原项目地址： https://github.com/wangshub/wechat_jump_game" << endl;
+	cout << "算法作者: wangshub" << endl;
+	cout << "本程序作者: @author月梦书" << endl;
 }
 
 int main(int argc, char *argv[]) {
 	showInfo();
 
-    bool flag = ask("请确保手机打开了 ADB 并连接了电脑，然后打开跳一跳并【开始游戏】后再用本程序，确定开始？");
+	bool flag = ask("请确保手机打开了 ADB 并连接了电脑，然后打开跳一跳并【开始游戏】后再用本程序，确定开始？");
 
 	if (!flag) {
 		cout << "bye." << endl;
 		return 0;
 	}
 
-    cout << "Ctrl-c退出程序." << endl;
+	cout << "Ctrl-c退出程序." << endl;
 	loadConfig();
 	for (;;) {
 		Mat img = screenshot();
